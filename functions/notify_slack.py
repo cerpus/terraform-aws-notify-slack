@@ -106,6 +106,7 @@ def notify_slack(subject, message, region):
   slack_channel = os.environ['SLACK_CHANNEL']
   slack_username = os.environ['SLACK_USERNAME']
   slack_emoji = os.environ['SLACK_EMOJI']
+  environment_name = os.environ['ENVIRONMENT_NAME']
 
   payload = {
     "channel": slack_channel,
@@ -113,6 +114,10 @@ def notify_slack(subject, message, region):
     "icon_emoji": slack_emoji,
     "attachments": []
   }
+
+  prefix = ""
+  if environment_name:
+    prefix = f'[{environment_name}] '
 
   if type(message) is str:
     try:
@@ -122,16 +127,16 @@ def notify_slack(subject, message, region):
 
   if "AlarmName" in message:
     notification = cloudwatch_notification(message, region)
-    payload['text'] = "AWS CloudWatch notification - " + message["AlarmName"]
+    payload['text'] = prefix + "AWS CloudWatch notification - " + message["AlarmName"]
     payload['attachments'].append(notification)
   elif "detail-type" in message and message["detail-type"] == "GuardDuty Finding":
     notification = guardduty_finding(message, message["region"])
-    payload['text'] = "Amazon GuardDuty Finding - " + message["detail"]["title"]
+    payload['text'] = prefix + "Amazon GuardDuty Finding - " + message["detail"]["title"]
     payload['attachments'].append(notification)
   elif "attachments" in message or "text" in message:
     payload = {**payload, **message}
   else:
-    payload['text'] = "AWS notification"
+    payload['text'] = prefix + "AWS notification"
     payload['attachments'].append(default_notification(subject, message))
 
   data = urllib.parse.urlencode({"payload": json.dumps(payload)}).encode("utf-8")

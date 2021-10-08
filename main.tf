@@ -95,6 +95,7 @@ module "lambda" {
     SLACK_USERNAME    = var.slack_username
     SLACK_EMOJI       = var.slack_emoji
     LOG_EVENTS        = var.log_events ? "True" : "False"
+    ENVIRONMENT_NAME  = var.environment
   }
 
   create_role               = var.lambda_role == ""

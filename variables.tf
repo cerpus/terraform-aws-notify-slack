@@ -161,3 +161,9 @@ variable "subscription_filter_policy" {
   type        = string
   default     = null
 }
+
+variable "environment" {
+  description = "A way to differentiate the different environment in the same slack channel"
+  type        = string
+  default     = ""
+}
